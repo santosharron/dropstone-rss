@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Dropstone Blog</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    h1 { color: #333; }
+    article { border-bottom: 1px solid #ddd; padding: 20px 0; }
+    a { text-decoration: none; color: #0070f3; }
+  </style>
+</head>
+<body>
+  <h1>Dropstone Blog</h1>
+  <div id="posts"></div>
+
+  <script>
+    async function fetchRSS() {
+      const CORS_PROXY = "https://api.allorigins.win/get?url=";
+      const RSS_URL = encodeURIComponent("https://www.dropstone.io/feed.xml");
+      const response = await fetch(`${CORS_PROXY}${RSS_URL}`);
+      const data = await response.json();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(data.contents, "application/xml");
+      const items = xmlDoc.querySelectorAll("item");
+      
+      const postsContainer = document.getElementById("posts");
+      items.forEach(item => {
+        const title = item.querySelector("title").textContent;
+        const link = item.querySelector("link").textContent;
+        const date = item.querySelector("pubDate").textContent;
+        const description = item.querySelector("description").textContent;
+
+        const article = document.createElement("article");
+        article.innerHTML = `
+          <h2><a href="${link}" target="_blank">${title}</a></h2>
+          <small>${date}</small>
+          <p>${description}</p>
+        `;
+        postsContainer.appendChild(article);
+      });
+    }
+
+    fetchRSS();
+  </script>
+</body>
+</html>
